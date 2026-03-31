@@ -1,0 +1,11 @@
+order_id,order_date,customer_id,product_id,category,product_name,quantity,unit_price,payment_method,store_city
+1001,2026-03-01,C001,P101,electronics,Wireless Mouse,2,25.50,card,dallas
+1002,2026-03-01,C002,P102,home,Water Bottle,1,15.00,cash,fort worth
+1003,2026-03-02,C003,P103,electronics,Keyboard,1,45.00,card,DALLAS
+1004,2026-03-02,C004,P104,fitness,Yoga Mat,3,20.00,upi,arlington
+1005,2026-03-03,C005,P105,home,Coffee Mug,2,12.50,card,Fort Worth
+1005,2026-03-03,C005,P105,home,Coffee Mug,2,12.50,card,Fort Worth
+1006,2026-03-03,C006,P106,electronics,Monitor,0,199.99,card,dallas
+1007,2026-03-04,C007,P107,fitness,Dumbbells,2,-50.00,cash,arlington
+1008,,C008,P108,home,Lamp,1,30.00,card,dallas
+,2026-03-05,C009,P109,electronics,Headphones,1,60.00,card,dallas

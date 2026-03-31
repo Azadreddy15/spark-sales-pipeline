@@ -1,0 +1,8 @@
+services:
+  spark-job:
+    build: .
+    container_name: spark_sales_pipeline
+    volumes:
+      - .:/opt/spark-apps
+    working_dir: /opt/spark-apps
+    command: python app/jobs/sales_etl.py
