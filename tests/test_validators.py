@@ -1,6 +1,6 @@
+import pytest
 from pyspark.sql import SparkSession
-
-from app.utils.validators import filter_valid_sales_rows
+from app.utils.validators import filter_valid_sales_rows, validate_required_columns
 
 
 def test_filter_valid_sales_rows():
@@ -18,5 +18,18 @@ def test_filter_valid_sales_rows():
     result_df = filter_valid_sales_rows(df)
 
     assert result_df.count() == 1
+    spark.stop()
+
+
+def test_validate_required_columns_raises_for_missing_columns():
+    spark = SparkSession.builder.master("local[*]").appName("test").getOrCreate()
+
+    df = spark.createDataFrame(
+        [(1001, "2026-03-01")],
+        ["order_id", "order_date"],
+    )
+
+    with pytest.raises(ValueError, match="Missing required columns"):
+        validate_required_columns(df, ["order_id", "order_date", "quantity"])
 
     spark.stop()
