@@ -26,6 +26,9 @@ def main():
     logger.info("Raw schema:")
     df.printSchema()
 
+    raw_count = df.count()
+    logger.info(f"Raw row count: {raw_count}")
+
     required_columns = [
         "order_id",
         "order_date",
@@ -46,6 +49,9 @@ def main():
         .withColumn("store_city", initcap(col("store_city")))
         .withColumn("total_amount", col("quantity") * col("unit_price"))
     )
+
+    cleaned_count = cleaned_df.count()
+    logger.info(f"Cleaned row count: {cleaned_count}")
 
     logger.info("Cleaned data preview:")
     cleaned_df.show(truncate=False)
