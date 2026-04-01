@@ -5,4 +5,4 @@ services:
     volumes:
       - .:/opt/spark-apps
     working_dir: /opt/spark-apps
-    command: python app/jobs/sales_etl.py
+    command: python -m app.jobs.sales_etl

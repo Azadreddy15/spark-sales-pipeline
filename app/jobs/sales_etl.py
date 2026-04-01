@@ -1,43 +1,58 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, initcap, lower
 
+from app.utils.config import Config
+from app.utils.logger import get_logger
+from app.utils.validators import filter_valid_sales_rows, validate_required_columns
+
+
+logger = get_logger(__name__)
+
 
 def main():
     spark = (
         SparkSession.builder
-        .appName("RetailSalesETL")
+        .appName(Config.APP_NAME)
         .getOrCreate()
     )
-
-    input_path = "/opt/spark-apps/data/raw/sales.csv"
-    output_path = "/opt/spark-apps/data/processed/sales_cleaned.parquet"
 
     df = (
         spark.read
         .option("header", True)
         .option("inferSchema", True)
-        .csv(input_path)
+        .csv(Config.INPUT_PATH)
     )
 
-    print("Raw schema:")
+    logger.info("Raw schema:")
     df.printSchema()
 
+    required_columns = [
+        "order_id",
+        "order_date",
+        "customer_id",
+        "product_id",
+        "category",
+        "product_name",
+        "quantity",
+        "unit_price",
+        "payment_method",
+        "store_city",
+    ]
+    validate_required_columns(df, required_columns)
+
     cleaned_df = (
-        df.dropDuplicates()
-        .dropna(subset=["order_id", "order_date"])
+        filter_valid_sales_rows(df)
         .withColumn("category", lower(col("category")))
         .withColumn("store_city", initcap(col("store_city")))
-        .filter(col("quantity") > 0)
-        .filter(col("unit_price") > 0)
         .withColumn("total_amount", col("quantity") * col("unit_price"))
     )
 
-    print("Cleaned data:")
+    logger.info("Cleaned data preview:")
     cleaned_df.show(truncate=False)
 
-    cleaned_df.write.mode("overwrite").parquet(output_path)
+    cleaned_df.write.mode("overwrite").parquet(Config.OUTPUT_PATH)
 
-    print(f"Cleaned parquet written to: {output_path}")
+    logger.info(f"Cleaned parquet written to: {Config.OUTPUT_PATH}")
 
     spark.stop()
 
