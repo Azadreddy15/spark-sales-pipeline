@@ -4,7 +4,7 @@ A production style Dockerized PySpark ETL project that reads raw retail sales da
 
 ## Project overview
 
-This project simulates a simple real world retail data engineering workflow using PySpark inside Docker. It is structured like a small production ETL job with separated configuration, logging, validation logic, tests, and data folders.
+This project simulates a simple real world retail data engineering workflow using PySpark inside Docker. It is structured like a small production style ETL job with separated configuration, logging, validation logic, tests, containerization, and CI.
 
 ## Features
 
@@ -12,12 +12,16 @@ This project simulates a simple real world retail data engineering workflow usin
 - Validates required input columns
 - Removes duplicate records
 - Removes invalid rows
-- Standardizes selected text fields
-- Creates a derived `total_amount` column
+- Standardizes `category` to lowercase
+- Standardizes `payment_method` to lowercase
+- Standardizes `store_city` to title case
+- Creates derived `total_amount`
+- Logs raw row count and cleaned row count
 - Writes cleaned output in Parquet format
 - Uses Docker and Docker Compose for reproducible execution
-- Includes modular utility files for config, logging, and validation
-- Includes pytest based validation test coverage
+- Uses environment variables for configurable paths and write mode
+- Includes automated tests with pytest
+- Includes GitHub Actions CI workflow
 
 ## Tech stack
 
@@ -26,11 +30,15 @@ This project simulates a simple real world retail data engineering workflow usin
 - Docker
 - Docker Compose
 - pytest
+- GitHub Actions
 
 ## Project structure
 
 ```text
 spark_sales_pipeline/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── app/
 │   ├── __init__.py
 │   ├── jobs/
@@ -45,6 +53,7 @@ spark_sales_pipeline/
 │   └── processed/
 │       └── sales_cleaned.parquet
 ├── tests/
+│   ├── test_config.py
 │   └── test_validators.py
 ├── Dockerfile
 ├── docker-compose.yml
