@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+
 from app.jobs.sales_etl import main
 from app.utils.config import Config
 
@@ -29,6 +30,10 @@ def test_sales_etl_end_to_end(tmp_path, monkeypatch):
     spark = SparkSession.builder.master("local[*]").appName("test-read-output").getOrCreate()
 
     result_df = spark.read.parquet(str(output_dir))
+    schema_map = dict(result_df.dtypes)
+    assert schema_map["quantity"] == "int"
+    assert schema_map["unit_price"] == "double"
+
     rows = result_df.orderBy("order_id").collect()
 
     assert output_dir.exists()
