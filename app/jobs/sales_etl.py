@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, initcap, lower
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType
@@ -23,6 +25,10 @@ input_schema = StructType([
 
 
 def main():
+    input_path = Path(Config.INPUT_PATH)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {Config.INPUT_PATH}")
+
     spark = SparkSession.builder.appName(Config.APP_NAME).getOrCreate()
 
     df = spark.read.csv(Config.INPUT_PATH, header=True, schema=input_schema)
