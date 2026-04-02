@@ -58,9 +58,295 @@ spark_sales_pipeline/
 │   ├── test_e2e_pipeline.py
 │   ├── test_sales_etl.py
 │   └── test_validators.py
+├── .dockerignore
 ├── Dockerfile
 ├── docker-compose.yml
 ├── README.md
 ├── requirements.txt
 ├── pytest.ini
 └── .gitignore
+```
+
+## Input Data
+
+The raw input file is:
+
+```bash
+data/raw/sales.csv
+```
+
+The dataset includes these columns:
+
+- `order_id`
+- `order_date`
+- `customer_id`
+- `product_id`
+- `category`
+- `product_name`
+- `quantity`
+- `unit_price`
+- `payment_method`
+- `store_city`
+
+The sample data intentionally includes dirty records such as:
+
+- duplicate rows
+- missing `order_id`
+- missing `order_date`
+- missing `customer_id`
+- missing `product_id`
+- invalid `quantity` values
+- invalid `unit_price` values
+- inconsistent city casing
+- inconsistent text casing
+
+## ETL Transformations
+
+The pipeline performs the following steps:
+
+### 1. Read raw CSV data
+
+The ETL job reads the raw sales CSV into a Spark DataFrame.
+
+### 2. Validate required columns
+
+Before transformation, the pipeline verifies that the input dataset contains all required columns.
+
+Required columns:
+
+- `order_id`
+- `order_date`
+- `customer_id`
+- `product_id`
+- `category`
+- `product_name`
+- `quantity`
+- `unit_price`
+- `payment_method`
+- `store_city`
+
+### 3. Remove invalid rows
+
+The pipeline removes rows that:
+
+- are duplicates
+- have missing `order_id`
+- have missing `order_date`
+- have missing `customer_id`
+- have missing `product_id`
+- have `quantity <= 0`
+- have `unit_price <= 0`
+
+### 4. Standardize text fields
+
+The pipeline standardizes these fields:
+
+- `category` to lowercase
+- `payment_method` to lowercase
+- `store_city` to title case
+
+### 5. Derive business metric
+
+The pipeline creates:
+
+```python
+total_amount = quantity * unit_price
+```
+
+### 6. Write curated output
+
+The cleaned dataset is written as Parquet.
+
+## Configuration
+
+The project uses environment variables through `app/utils/config.py`.
+
+Supported configuration values:
+
+- `INPUT_PATH`
+- `OUTPUT_PATH`
+- `APP_NAME`
+- `WRITE_MODE`
+
+Default values:
+
+```python
+INPUT_PATH = "/opt/spark-apps/data/raw/sales.csv"
+OUTPUT_PATH = "/opt/spark-apps/data/processed/sales_cleaned.parquet"
+APP_NAME = "RetailSalesETL"
+WRITE_MODE = "overwrite"
+```
+
+## Docker Setup
+
+### Dockerfile
+
+The Dockerfile currently:
+
+- uses `python:3.11-slim`
+- installs `default-jdk` and `procps`
+- sets `JAVA_HOME=/usr/lib/jvm/default-java`
+- sets `PYSPARK_PYTHON=python3`
+- sets the working directory to `/opt/spark-apps`
+- installs dependencies from `requirements.txt`
+- copies the full project into the container
+- uses `.dockerignore` to keep unnecessary files out of the Docker build context
+
+### Docker Compose
+
+The `docker-compose.yml` file defines the `spark-job` service and passes runtime configuration using environment variables.
+
+Configured environment variables:
+
+- `INPUT_PATH=/opt/spark-apps/data/raw/sales.csv`
+- `OUTPUT_PATH=/opt/spark-apps/data/processed/sales_cleaned.parquet`
+- `APP_NAME=RetailSalesETL`
+- `WRITE_MODE=overwrite`
+
+The container runs:
+
+```bash
+python -m app.jobs.sales_etl
+```
+
+## Run the Pipeline
+
+From the project root, run:
+
+```bash
+docker compose up --build
+```
+
+This will:
+
+- build the Docker image
+- run the Spark ETL job
+- process the raw CSV
+- write cleaned Parquet output
+
+## Run Tests
+
+Run the full test suite:
+
+```bash
+docker compose run --rm --build spark-job pytest
+```
+
+Run only the end to end pipeline test:
+
+```bash
+docker compose run --rm --build spark-job pytest tests/test_e2e_pipeline.py
+```
+
+## Output
+
+The cleaned Parquet output is written to:
+
+```bash
+data/processed/sales_cleaned.parquet
+```
+
+The final output contains cleaned, validated, and standardized records along with the derived `total_amount` column.
+
+## Logging
+
+The project uses centralized logging through `app/utils/logger.py`.
+
+The ETL job currently logs:
+
+- raw schema
+- raw row count
+- cleaned row count
+- cleaned preview
+- output path
+
+This makes the pipeline easier to debug and monitor.
+
+## Test Coverage
+
+The project currently includes:
+
+- **Config tests** for default values and environment variable overrides
+- **Validator tests** for required column validation and invalid row filtering
+- **Transformation tests** for duplicate removal, text standardization, and `total_amount` calculation
+- **End to end ETL test** that runs the full pipeline and validates the Parquet output
+
+Latest verified local test result:
+
+```text
+6 passed
+```
+
+## CI Integration
+
+GitHub Actions CI is configured in:
+
+```bash
+.github/workflows/ci.yml
+```
+
+The workflow runs automatically on:
+
+- `push` to `main`
+- `pull_request` to `main`
+
+CI verifies that the test suite passes successfully on GitHub.
+
+## Current Status
+
+This project currently supports:
+
+- Dockerized execution
+- modular PySpark ETL code
+- schema validation
+- invalid row filtering
+- text normalization
+- derived metrics
+- Parquet output
+- automated testing
+- end to end pipeline validation
+- GitHub Actions CI
+
+This makes it a strong production style beginner to intermediate data engineering portfolio project.
+
+## Example Commands
+
+Run the pipeline:
+
+```bash
+docker compose up --build
+```
+
+Run all tests:
+
+```bash
+docker compose run --rm --build spark-job pytest
+```
+
+Push latest changes:
+
+```bash
+git add .
+git commit -m "your message"
+git push origin main
+```
+
+## Why This Project Matters
+
+This project demonstrates practical data engineering skills used in real workflows:
+
+- ETL pipeline design
+- data cleaning and validation
+- Spark based data processing
+- containerized development
+- automated testing
+- CI integration
+- maintainable project structure
+
+It is intentionally simple enough to understand clearly while still reflecting production style practices.
+
+## Author
+
+**Azad Reddy**
+
+GitHub: `Azadreddy15`
