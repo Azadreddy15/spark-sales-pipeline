@@ -5,4 +5,9 @@ services:
     volumes:
       - .:/opt/spark-apps
     working_dir: /opt/spark-apps
+    environment:
+      INPUT_PATH: /opt/spark-apps/data/raw/sales.csv
+      OUTPUT_PATH: /opt/spark-apps/data/processed/sales_cleaned.parquet
+      APP_NAME: RetailSalesETL
+      WRITE_MODE: overwrite
     command: python -m app.jobs.sales_etl
