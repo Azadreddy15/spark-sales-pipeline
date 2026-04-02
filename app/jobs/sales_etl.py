@@ -46,6 +46,7 @@ def main():
     cleaned_df = (
         filter_valid_sales_rows(df)
         .withColumn("category", lower(col("category")))
+        .withColumn("payment_method", lower(col("payment_method")))
         .withColumn("store_city", initcap(col("store_city")))
         .withColumn("total_amount", col("quantity") * col("unit_price"))
     )
