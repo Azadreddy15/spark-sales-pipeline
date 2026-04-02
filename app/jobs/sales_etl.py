@@ -5,23 +5,16 @@ from app.utils.config import Config
 from app.utils.logger import get_logger
 from app.utils.validators import filter_valid_sales_rows, validate_required_columns
 
-
 logger = get_logger(__name__)
 
 
 def main():
-    spark = (
-        SparkSession.builder
-        .appName(Config.APP_NAME)
-        .getOrCreate()
-    )
+    spark = SparkSession.builder.appName(Config.APP_NAME).getOrCreate()
 
-    df = (
-        spark.read
-        .option("header", True)
-        .option("inferSchema", True)
-        .csv(Config.INPUT_PATH)
-    )
+    df = spark.read.csv(Config.INPUT_PATH, header=True, inferSchema=True)
+
+    df = df.withColumn("quantity", col("quantity").cast("int")) \
+           .withColumn("unit_price", col("unit_price").cast("double"))
 
     logger.info("Raw schema:")
     df.printSchema()
@@ -41,11 +34,13 @@ def main():
         "payment_method",
         "store_city",
     ]
+
     validate_required_columns(df, required_columns)
 
+    cleaned_df = filter_valid_sales_rows(df)
+
     cleaned_df = (
-        filter_valid_sales_rows(df)
-        .withColumn("category", lower(col("category")))
+        cleaned_df.withColumn("category", lower(col("category")))
         .withColumn("payment_method", lower(col("payment_method")))
         .withColumn("store_city", initcap(col("store_city")))
         .withColumn("total_amount", col("quantity") * col("unit_price"))
@@ -58,8 +53,7 @@ def main():
     cleaned_df.show(truncate=False)
 
     cleaned_df.write.mode(Config.WRITE_MODE).parquet(Config.OUTPUT_PATH)
-
-    logger.info(f"Cleaned parquet written to: {Config.OUTPUT_PATH}")
+    logger.info(f"Cleaned data written to: {Config.OUTPUT_PATH}")
 
     spark.stop()
 
