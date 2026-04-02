@@ -57,7 +57,7 @@ def main():
     logger.info("Cleaned data preview:")
     cleaned_df.show(truncate=False)
 
-    cleaned_df.write.mode("overwrite").parquet(Config.OUTPUT_PATH)
+    cleaned_df.write.mode(Config.WRITE_MODE).parquet(Config.OUTPUT_PATH)
 
     logger.info(f"Cleaned parquet written to: {Config.OUTPUT_PATH}")
 
