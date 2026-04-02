@@ -12,7 +12,7 @@ def validate_required_columns(df: DataFrame, required_columns: list[str]) -> Non
 def filter_valid_sales_rows(df: DataFrame) -> DataFrame:
     return (
         df.dropDuplicates()
-        .dropna(subset=["order_id", "order_date"])
+        .dropna(subset=["order_id", "order_date", "customer_id", "product_id"])
         .filter(col("quantity") > 0)
         .filter(col("unit_price") > 0)
     )
