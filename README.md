@@ -1,5 +1,7 @@
 # Spark Sales Pipeline
 
+[![CI](https://github.com/Azadreddy15/spark-sales-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Azadreddy15/spark-sales-pipeline/actions/workflows/ci.yml)
+
 A production style Dockerized PySpark ETL project that reads raw retail sales data from CSV, validates and cleans the dataset, standardizes selected fields, derives business metrics, and writes curated output as Parquet.
 
 ## Project Overview
