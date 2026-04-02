@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, initcap, lower
+from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType
 
 from app.utils.config import Config
 from app.utils.logger import get_logger
@@ -7,14 +8,24 @@ from app.utils.validators import filter_valid_sales_rows, validate_required_colu
 
 logger = get_logger(__name__)
 
+input_schema = StructType([
+    StructField("order_id", IntegerType(), True),
+    StructField("order_date", StringType(), True),
+    StructField("customer_id", StringType(), True),
+    StructField("product_id", StringType(), True),
+    StructField("category", StringType(), True),
+    StructField("product_name", StringType(), True),
+    StructField("quantity", IntegerType(), True),
+    StructField("unit_price", DoubleType(), True),
+    StructField("payment_method", StringType(), True),
+    StructField("store_city", StringType(), True),
+])
+
 
 def main():
     spark = SparkSession.builder.appName(Config.APP_NAME).getOrCreate()
 
-    df = spark.read.csv(Config.INPUT_PATH, header=True, inferSchema=True)
-
-    df = df.withColumn("quantity", col("quantity").cast("int")) \
-           .withColumn("unit_price", col("unit_price").cast("double"))
+    df = spark.read.csv(Config.INPUT_PATH, header=True, schema=input_schema)
 
     logger.info("Raw schema:")
     df.printSchema()
