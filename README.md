@@ -23,6 +23,7 @@ This project simulates a simple real world retail data engineering workflow usin
 - Includes automated tests with `pytest`
 - Includes end to end ETL pipeline validation
 - Includes GitHub Actions CI workflow
+- Uses an explicit Spark schema for predictable input data types
 
 ## Tech Stack
 
