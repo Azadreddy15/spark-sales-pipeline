@@ -9,6 +9,7 @@ This project simulates a simple real world retail data engineering workflow usin
 ## Features
 
 - Reads raw retail sales data from CSV
+- Checks that the input file exists before Spark reads it
 - Validates required input columns
 - Removes duplicate records
 - Removes invalid rows
@@ -22,6 +23,7 @@ This project simulates a simple real world retail data engineering workflow usin
 - Uses environment variables for configurable paths and write mode
 - Includes automated tests with `pytest`
 - Includes end to end ETL pipeline validation
+- Includes missing input file handling test
 - Includes GitHub Actions CI workflow
 - Uses an explicit Spark schema for predictable input data types
 
@@ -105,9 +107,11 @@ The sample data intentionally includes dirty records such as:
 
 The pipeline performs the following steps:
 
-### 1. Read raw CSV data
+### 1. Check input file and read raw CSV data
 
-The ETL job reads the raw sales CSV into a Spark DataFrame.
+Before Spark reads the dataset, the ETL job checks whether the configured input file exists. If the file is missing, it raises a `FileNotFoundError`.
+
+The raw sales CSV is then read into a Spark DataFrame using an explicit schema for predictable input types.
 
 ### 2. Validate required columns
 
@@ -269,13 +273,13 @@ The project currently includes:
 
 - **Config tests** for default values and environment variable overrides
 - **Validator tests** for required column validation and invalid row filtering
-- **Transformation tests** for duplicate removal, text standardization, and `total_amount` calculation
-- **End to end ETL test** that runs the full pipeline and validates the Parquet output
+- **Transformation tests** for duplicate removal, text standardization, `total_amount` calculation, and missing input file handling
+- **End to end ETL test** that runs the full pipeline and validates the Parquet output schema and cleaned values
 
 Latest verified local test result:
 
 ```text
-6 passed
+7 passed
 ```
 
 ## CI Integration
@@ -299,7 +303,9 @@ This project currently supports:
 
 - Dockerized execution
 - modular PySpark ETL code
-- schema validation
+- explicit schema based CSV ingestion
+- input file existence validation
+- required column validation
 - invalid row filtering
 - text normalization
 - derived metrics
@@ -328,7 +334,7 @@ Push latest changes:
 
 ```bash
 git add .
-git commit -m "your message"
+git commit -m "Update README to reflect latest ETL state"
 git push origin main
 ```
 
